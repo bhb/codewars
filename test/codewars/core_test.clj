@@ -1,6 +1,6 @@
 (ns codewars.core-test
   (:require [clojure.test :refer :all]
-            [codewars.core :refer :all]))
+            [codewars.core :refer :all :as unpack] :reload))
 
 ;; (deftest powers-test
 ;;   (is (= [[]] (powers [])))
@@ -27,6 +27,18 @@
   (is (= (nth-term -50 10 20) 150) )
 )
 
-(run-tests)
+(deftest examples
+  (is (= (unpack/spread + [1 2 3 4 5]) 15), "Spread isn't working!")
+)
 
+(deftest basic-test
+ (testing "An empty swap set doesn't move the ball"
+   (is (= (find-the-ball 5 []) 5)))
+ (testing "Some games"
+   (is (= (find-the-ball 0 [[0 1]])) 1)
+   (is (= (find-the-ball 0 [[1 0]])) 1)
+   (is (= (find-the-ball 0 [[0 1] [2 1] [0 1]]) 2))))
+
+
+(run-tests)
 

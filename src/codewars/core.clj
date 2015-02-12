@@ -35,3 +35,23 @@
 (nth-term 1 2 3)
 (nth-term 2 2 2)
 (nth-term -50 10 20)
+
+(defn spread [func args]
+  (apply func args))
+
+(spread + [1 2 3 4 5])
+
+(defn find-the-ball
+  "Given the starting position and a list of swaps, find the final position"
+  [initial-position moves]
+  (loop [position initial-position
+         remaining-moves moves]
+    (if (empty? remaining-moves)
+      position
+      (let [[from to] (first remaining-moves)
+            new-position (cond
+                          (= from position) to
+                          (= to position) from
+                          :else position)]
+        (recur new-position (rest remaining-moves))
+  ))))
