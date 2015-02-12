@@ -1,25 +1,37 @@
 (ns codewars.core)
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn powers1 [num count]
+  (if (zero? count)
+    num
+    (recur (*' num 2) (dec count))))
 
-(defn- powers* [acc xs]
-  (if (empty? xs)
-    acc
-    (let [[first & rest] xs
-          conj-first (map #(conj % first) acc)]
-      (recur (vec (concat acc conj-first)) rest))))
+(defn powers [list]
+  (powers1 1 (count list)
+  ))
 
-(defn powers [xs]
-  (sort (powers* [[]] xs))
-  )
+(powers [1 2 3])
 
 (powers [])
 (powers [1])
 (powers [1 2])
 
-(def x (vec (range 0 100)))
+(powers (range 0 10))
 
-(count (powers x))
+;; #_(= (count (powers x))
+;;      (powers-count x))
+
+
+
+;; (defn nth-term [first n c]
+;;   (nth (iterate (partial + c) first) n))
+
+(defn nth-term [first n c]
+  (as-> first $
+       (iterate (partial + c) $)
+       (nth $ n)))
+
+(take 100 (range))
+
+(nth-term 1 2 3)
+(nth-term 2 2 2)
+(nth-term -50 10 20)
