@@ -42,7 +42,7 @@
 
 (deftest multiple-sum-test
   (is (= (multiple-sum 0) 0))
-  (is (= (multiple-sum 3) 3))
+  (is (= (multiple-sum 4) 3))
   (is (= (multiple-sum 6) 8))
   (is (= (multiple-sum 10) 23)))
 
