@@ -1,5 +1,10 @@
 (ns codewars.core)
 
+(defn dbg [x]
+  (println x)
+  x)
+  
+
 (defn powers1 [num count]
   (if (zero? count)
     num
@@ -41,7 +46,7 @@
 
 (spread + [1 2 3 4 5])
 
-(defn find-the-ball
+(defn find-the-ball1
   "Given the starting position and a list of swaps, find the final position"
   [initial-position moves]
   (loop [position initial-position
@@ -55,3 +60,23 @@
                           :else position)]
         (recur new-position (rest remaining-moves))
   ))))
+
+
+
+(defn find-the-ball
+  "Given the starting position and a list of swaps, find the final position"
+  [initial-position moves]
+  (reduce (fn [pos [from to]]
+            (condp = pos
+              from to
+              to from
+              pos)) initial-position moves))
+
+(find-the-ball 0 [[0 1]])
+
+(defn multiple-sum [n]
+  (letfn [(divisible-by? [x y] (zero? (mod x y)))]
+    (->> (range 1 n)
+         (filter #(or (divisible-by? % 3) (divisible-by? % 5)))
+         (apply +))))
+
