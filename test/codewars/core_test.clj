@@ -46,5 +46,12 @@
   (is (= (multiple-sum 6) 8))
   (is (= (multiple-sum 10) 23)))
 
+(deftest test-cases
+  (are [n expected]
+    (= expected (desc-order n))
+    0          0
+    1          1
+    15         51))
+
 (run-tests)
 

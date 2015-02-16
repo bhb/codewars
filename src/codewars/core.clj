@@ -76,7 +76,20 @@
 
 (defn multiple-sum [n]
   (letfn [(divisible-by? [x y] (zero? (mod x y)))]
-    (->> (range 1 n)
+    (->> n
+         (range)
          (filter #(or (divisible-by? % 3) (divisible-by? % 5)))
          (apply +))))
+
+(defn desc-order [n]
+  (-> n
+      str
+      (clojure.string/split #"")
+      sort
+      reverse
+      clojure.string/join
+      Integer/parseInt)
+  )
+
+
 
