@@ -1,9 +1,15 @@
 (ns codewars.core)
 
-(defn dbg [x]
-  (println x)
-  x)
-  
+(defmacro -dbg
+  [x]
+  `~x)
+
+(defmacro dbg
+  [x]
+  `(let [x# ~x]
+     (clojure.pprint/pprint (str "dbg:" '~x "="))
+     (clojure.pprint/pprint x#)
+     x#))
 
 (defn powers1 [num count]
   (if (zero? count)
@@ -88,8 +94,28 @@
       sort
       reverse
       clojure.string/join
-      Integer/parseInt)
-  )
+      Integer/parseInt))
 
+(defn mean [xs]
+  (/ (apply + xs) (count xs)))
 
+(defn estimated-syllables [s]
+ (count (re-seq #"(?i)[aeiouy]+" s)))
+
+(defn round [x]
+  (* 0.01 (Math/round (* 100 x))))
+
+(defn find-words [s]
+  (remove empty? (clojure.string/split s #" +")))
+
+(defn flesch-kincaid [text]
+  (let [sentences (clojure.string/split text #"[!\.\?]")
+        words-per-sentence (map (comp count find-words) sentences)
+        syllables (map estimated-syllables (find-words text))]
+    (round
+     (- (+ (* 11.8
+              (mean syllables))
+           (* 0.39
+              (mean words-per-sentence)))
+        15.59))))
 
