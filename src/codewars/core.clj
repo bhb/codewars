@@ -11,6 +11,13 @@
      (clojure.pprint/pprint x#)
      x#))
 
+(defn in?
+  "true if seq contains elm"
+  [seq elm]
+  (some #(= elm %) seq))
+
+;; ==========================================================================
+
 (defn powers1 [num count]
   (if (zero? count)
     num
@@ -21,20 +28,13 @@
   ))
 
 (powers [1 2 3])
-
 (powers [])
 (powers [1])
 (powers [1 2])
-
 (powers (range 0 10))
 
-;; #_(= (count (powers x))
-;;      (powers-count x))
 
-
-
-;; (defn nth-term [first n c]
-;;   (nth (iterate (partial + c) first) n))
+;; ==========================================================================
 
 (defn nth-term [first n c]
   (as-> first $
@@ -51,6 +51,8 @@
   (apply func args))
 
 (spread + [1 2 3 4 5])
+
+;; ==========================================================================
 
 (defn find-the-ball1
   "Given the starting position and a list of swaps, find the final position"
@@ -80,12 +82,16 @@
 
 (find-the-ball 0 [[0 1]])
 
+;; ==========================================================================
+
 (defn multiple-sum [n]
   (letfn [(divisible-by? [x y] (zero? (mod x y)))]
     (->> n
          (range)
          (filter #(or (divisible-by? % 3) (divisible-by? % 5)))
          (apply +))))
+
+;; ==========================================================================
 
 (defn desc-order [n]
   (-> n
@@ -95,6 +101,8 @@
       reverse
       clojure.string/join
       Integer/parseInt))
+
+;; ==========================================================================
 
 (defn mean [xs]
   (/ (apply + xs) (count xs)))
@@ -118,4 +126,61 @@
            (* 0.39
               (mean words-per-sentence)))
         15.59))))
+
+;; ==========================================================================
+
+
+(defn fact
+  ([x] (fact x 1))
+  ([x product]
+     (condp = x
+       0 0
+       1 product
+       (recur (dec x) (*' x product)))))
+
+(defn zeros [n]
+  (if (zero? n)
+    0
+    (->> n
+         fact
+         str
+         (re-find #"0+$")
+         count
+         )))
+
+(defn primes-under* [x]
+  (loop [candidates (range 2 x)
+         last-prime 1]
+    (let [prime (first (filter #(< last-prime %) candidates))]
+      (if (nil? prime)
+        candidates
+        (recur (remove #(and (zero? (mod % prime))
+                             (not= prime %)) candidates)
+               prime)))))
+
+(def prime-under (memoize primes-under*))
+
+(defn prime? [x]
+  (or (= x 1)
+      (in? (primes-under (inc x)) x)))
+
+(primes-under 140)
+
+(defn factors [x]
+  {:post [(= x (apply * %))]}
+  (if (prime? x)
+    (list x)
+    (let [first-factor (first (filter #(zero? (mod x %)) (primes-under x)))
+          factors- [first-factor (/ x first-factor)]]
+      (if (every? prime? factors-)
+        factors-
+        (flatten (map factors factors-))))))
+
+(factors 30)
+(factors 2)
+
+
+;; (def zeros2 [n]
+;;   (let [nums (range 1 (inc n))
+;;         tens (filter #(mod
 
