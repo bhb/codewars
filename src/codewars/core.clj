@@ -1,6 +1,7 @@
 (ns codewars.core
   (:require
    [criterium.core :refer [quick-bench with-progress-reporting]]
+   [taoensso.timbre.profiling :as profiler :refer [profile sampling-profile p]]
     ))
 
 (defmacro -dbg
@@ -238,26 +239,6 @@
          (divisible? i 10)) (recur (inc i) (*' product i) zeros)
      :else (recur (inc i) product zeros))))
 
-;; doesn't work, math with quotients doesn't work
-;; (defn zeros6 [x]
-;;   (loop [i 1
-;;          twos 0
-;;          fives 0
-;;          tens 0]
-;;     (dbg [i twos fives tens])
-;;     (if (> i x)
-;;       (+ tens (min twos fives))
-;;       (let [quotient-ten (/ i 10)]
-;;         (if (integer? quotient-ten)
-;;           (recur (inc i) twos fives (+ quotient-ten tens))
-;;           (let [quotient-five (/ i 5)]
-;;             (if (integer? quotient-five)
-;;               (recur (inc i) twos (+ quotient-five fives) tens)
-;;               (let [quotient-two (/ i 2)]
-;;                 (if (integer? quotient-two)
-;;                   (recur (inc i) (+ quotient-two twos) fives tens)
-;;                   (recur (inc i) twos fives tens))))))))))
-
 (defn twos-fives-tens-in-factors
   "Finds all factors of a number that are 2, 5, or 10.
    Returns a map e.g. {:twos 2 :fives 0 :tens 1} for x = 40"
@@ -284,6 +265,18 @@
              (merge-with +
                          acc
                          (twos-fives-tens-in-factors i))))))
+(defn zeros7 [x]
+  (loop [i 1
+         all-twos 0
+         all-fives 0
+         all-tens 0]
+    (if (> i x)
+      (+ all-tens (min all-twos all-fives))
+      (let [{:keys [twos fives tens]} (profiler/p :tft (twos-fives-tens-in-factors i))]
+        (recur (inc i)
+               (+ twos all-twos)
+               (+ fives all-fives)
+               (+ tens all-tens))))))
 
 (zeros6 15)
 (zeros 15)
@@ -294,22 +287,15 @@
 (zeros6 50)
 
 (time (zeros 10000))
-(time (zeros5 10000))
 (time (zeros6 10000))
+(time (zeros7 10000))
 
-;; (time (zeros 5000))
-;; (time (zeros4 5000))
-;; (time (zeros 1000))
-;; (time (zeros 10000))
-;; (time (zeros 200))
-;; (zeros3 200)
-
-;;(integer? (/ 4 3))
+(profile :info :test (zeros7 10000))
 
 (every?
  #(= (zeros %)
-     (zeros6 %))
- (range 0 1000))
+     (zeros7 %))
+ (range 0 20))
 
 
 ;; idea - every time you multiply by next number, if current product

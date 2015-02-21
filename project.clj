@@ -8,4 +8,5 @@
   :profiles {:dev {:dependencies [[alembic "0.3.2"]
                                   [org.clojure/test.check "0.6.1"]
                                   [criterium "0.4.3"]
+                                  [com.taoensso/timbre "3.4.0"]
                                   ]}})
