@@ -1,4 +1,7 @@
-(ns codewars.core)
+(ns codewars.core
+  (:require
+   [criterium.core :refer [quick-bench with-progress-reporting]]
+    ))
 
 (defmacro -dbg
   [x]
@@ -131,18 +134,20 @@
 
 
 (defn fact
-  ([x] (fact x 1))
+  ([x] (fact (bigint x) 1))
   ([x product]
      (condp = x
        0 0
        1 product
-       (recur (dec x) (*' x product)))))
+       (recur (dec x) (* x product)))))
+
+(defn fact2 [n] (reduce *' (range 1 (inc n))))
 
 (defn zeros [n]
   (if (zero? n)
     0
     (->> n
-         fact
+         fact2
          str
          (re-find #"0+$")
          count
@@ -158,7 +163,7 @@
                              (not= prime %)) candidates)
                prime)))))
 
-(def prime-under (memoize primes-under*))
+(def primes-under (memoize primes-under*))
 
 (defn prime? [x]
   (or (= x 1)
@@ -166,7 +171,7 @@
 
 (primes-under 140)
 
-(defn factors [x]
+(defn factors* [x]
   {:post [(= x (apply * %))]}
   (if (prime? x)
     (list x)
@@ -174,10 +179,142 @@
           factors- [first-factor (/ x first-factor)]]
       (if (every? prime? factors-)
         factors-
-        (flatten (map factors factors-))))))
+        (flatten (map factors* factors-))))))
 
-(factors 30)
-(factors 2)
+(def factors (memoize factors*))
+
+(defn zeros2 [n]
+  (let [factors- (mapcat factors (range 2 (inc n)))
+        twos (filter #(= 2 %) factors-)
+        fives (filter #(= 5 %) factors-)]
+    (min (count twos)
+         (count fives))
+    ))
+
+(defn divisible? [x y]
+  (zero? (mod x y)))
+
+(defn zeros3
+  ([x] (zeros3 x 1 0))
+  ([x product zeros]
+     (condp = x
+       0 0
+       1 zeros
+       (let [new-product (*' x product)
+             quotient (/ new-product 10)]
+         (if (integer? quotient)
+           (recur (dec x) quotient (inc zeros))
+           (recur (dec x) new-product zeros))))))
+
+(defn subfactorial [x]
+  (reduce *' (filter #(or (divisible? % 2)
+                          (divisible? % 5)) (range 1 (inc x)))))
+
+(defn zeros4 [n]
+  (if (zero? n)
+    0
+    (->> n
+         subfactorial
+         str
+         (re-find #"0+$")
+         count
+         )))
+
+(defn zeros5 [x]
+  (loop [i 1
+         product 1
+         zeros 0]
+    #_(dbg [i product zeros])
+    (cond
+     (> i x) (->> product
+                  ;;str
+                  ;;(re-find #"0+$")
+                  ;;count
+                  ;;(+ zeros)
+                  )
+     ;;(divisible? i 10) (recur (inc i) (* (/ i 10) product) (inc zeros))
+     (or (divisible? i 2)
+         (divisible? i 5)
+         (divisible? i 10)) (recur (inc i) (*' product i) zeros)
+     :else (recur (inc i) product zeros))))
+
+;; doesn't work, math with quotients doesn't work
+;; (defn zeros6 [x]
+;;   (loop [i 1
+;;          twos 0
+;;          fives 0
+;;          tens 0]
+;;     (dbg [i twos fives tens])
+;;     (if (> i x)
+;;       (+ tens (min twos fives))
+;;       (let [quotient-ten (/ i 10)]
+;;         (if (integer? quotient-ten)
+;;           (recur (inc i) twos fives (+ quotient-ten tens))
+;;           (let [quotient-five (/ i 5)]
+;;             (if (integer? quotient-five)
+;;               (recur (inc i) twos (+ quotient-five fives) tens)
+;;               (let [quotient-two (/ i 2)]
+;;                 (if (integer? quotient-two)
+;;                   (recur (inc i) (+ quotient-two twos) fives tens)
+;;                   (recur (inc i) twos fives tens))))))))))
+
+(defn twos-fives-tens-in-factors
+  "Finds all factors of a number that are 2, 5, or 10.
+   Returns a map e.g. {:twos 2 :fives 0 :tens 1} for x = 40"
+  ([x] (twos-fives-tens-in-factors x {:twos 0 :fives 0 :tens 0}))
+  ([x {:keys [twos fives tens] :as acc}]
+  (let [quotient-ten (/ x 10)]
+    (if (integer? quotient-ten)
+      (recur quotient-ten { :twos twos :fives fives :tens (inc tens)})
+      (let [quotient-two (/ x 2)]
+        (if (integer? quotient-two)
+          (recur quotient-two { :twos (inc twos) :fives fives :tens tens})
+          (let [quotient-five (/ x 5)]
+            (if (integer? quotient-five)
+              (recur quotient-five { :twos twos :fives (inc fives) :tens tens})
+              acc))))))))
+
+(defn zeros6 [x]
+  (loop [i 1
+         acc { :twos 0 :fives 0 :tens 0 }]
+    (if (> i x)
+      (let [{:keys [twos fives tens]} acc]
+        (+ tens (min twos fives)))
+      (recur (inc i)
+             (merge-with +
+                         acc
+                         (twos-fives-tens-in-factors i))))))
+
+(zeros6 15)
+(zeros 15)
+    
+
+(zeros 50)
+(zeros2 50)
+(zeros6 50)
+
+(time (zeros 10000))
+(time (zeros5 10000))
+(time (zeros6 10000))
+
+;; (time (zeros 5000))
+;; (time (zeros4 5000))
+;; (time (zeros 1000))
+;; (time (zeros 10000))
+;; (time (zeros 200))
+;; (zeros3 200)
+
+;;(integer? (/ 4 3))
+
+(every?
+ #(= (zeros %)
+     (zeros6 %))
+ (range 0 1000))
+
+
+;; idea - every time you multiply by next number, if current product
+;; is divisible by ten, then divide by 10 and inc num of tens
+;; you can still count at end
 
 
 ;; (def zeros2 [n]
