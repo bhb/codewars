@@ -265,6 +265,7 @@
              (merge-with +
                          acc
                          (twos-fives-tens-in-factors i))))))
+
 (defn zeros7 [x]
   (loop [i 1
          all-twos 0
@@ -272,30 +273,82 @@
          all-tens 0]
     (if (> i x)
       (+ all-tens (min all-twos all-fives))
-      (let [{:keys [twos fives tens]} (profiler/p :tft (twos-fives-tens-in-factors i))]
+      (let [{:keys [twos fives tens]} (twos-fives-tens-in-factors i)]
         (recur (inc i)
                (+ twos all-twos)
                (+ fives all-fives)
                (+ tens all-tens))))))
 
-(zeros6 15)
-(zeros 15)
-    
+(defn times-divisble [y x]
+  "Number of times x is divisible by y"
+  (loop [i 0
+         q x]
+    (if (zero? (mod q y))
+      (recur (inc i) (/ q y))
+      i)))
 
+(defn zeros8 [x]
+  #_(->> (range 1 (inc x))
+       (map (partial times-divisble 5))
+       (reduce +))
+  (reduce +
+          (map (partial times-divisble 5)
+               (range 1 (inc x))))
+  )
+
+(defn zeros9 [x]
+  (loop [i 1
+         zero-count 0]
+    (if (> i x)
+      zero-count
+      (let [times (times-divisble 5 i)]
+        (recur (inc i) (+ times zero-count))))))
+
+(defn zeros10 [x]
+  (loop [i 5
+         count 0]
+    (if (> i x)
+      (int count)
+      (recur (* 5 i) (+ count (Math/floor (/ x i)))))))
+
+
+  ;; (int (+ (Math/floor (/ x 5))
+  ;;    (Math/floor (/ x 25))
+  ;;    (Math/floor (/ x 125))
+  ;;    (Math/floor (/ x (* 125 5)))
+  ;;    (Math/floor (/ x (* 125 5 5)))
+  ;;    (Math/floor (/ x (* 125 5 5 5)))
+  ;;    (Math/floor (/ x (* 125 5 5 5 5)))
+  ;;    (Math/floor (/ x (* 125 5 5 5 5 5)))
+  ;;    )))
+
+(zeros10 50)
 (zeros 50)
-(zeros2 50)
-(zeros6 50)
 
-(time (zeros 10000))
-(time (zeros6 10000))
-(time (zeros7 10000))
+;;(time (zeros 10000))
+;;(time (zeros8 10000))
 
-(profile :info :test (zeros7 10000))
+;;(zeros 100000)
+;;(zeros2 50)
+;;(zeros6 50)
+;;
+(let [x 1000000]
+  [(zeros8 x) (zeros10 x)])
 
-(every?
- #(= (zeros %)
-     (zeros7 %))
- (range 0 20))
+;;(time (zeros 10000))
+;;(time (zeros6 10000))
+;;(time (zeros7 10000))
+;;(time (zeros7 1000000)) ;;249998
+;;(time (zeros8 1000000)) ;;249998
+;;(time (zeros9 1000000)) ;;249998
+;;(time (zeros10 1000000))
+
+;;(profile :info :test (zeros8 10000))
+
+#_(every?
+   #(= (zeros9 %)
+       (zeros10 %))
+   (range 0 10000))
 
 
 ;; idea - every time you multiply by next number, if current product
