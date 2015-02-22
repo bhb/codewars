@@ -133,7 +133,6 @@
 
 ;; ==========================================================================
 
-
 (defn fact
   ([x] (fact (bigint x) 1))
   ([x product]
@@ -169,8 +168,6 @@
 (defn prime? [x]
   (or (= x 1)
       (in? (primes-under (inc x)) x)))
-
-(primes-under 140)
 
 (defn factors* [x]
   {:post [(= x (apply * %))]}
@@ -233,7 +230,6 @@
                   ;;count
                   ;;(+ zeros)
                   )
-     ;;(divisible? i 10) (recur (inc i) (* (/ i 10) product) (inc zeros))
      (or (divisible? i 2)
          (divisible? i 5)
          (divisible? i 10)) (recur (inc i) (*' product i) zeros)
@@ -311,52 +307,4 @@
       (int count)
       (recur (* 5 i) (+ count (Math/floor (/ x i)))))))
 
-
-  ;; (int (+ (Math/floor (/ x 5))
-  ;;    (Math/floor (/ x 25))
-  ;;    (Math/floor (/ x 125))
-  ;;    (Math/floor (/ x (* 125 5)))
-  ;;    (Math/floor (/ x (* 125 5 5)))
-  ;;    (Math/floor (/ x (* 125 5 5 5)))
-  ;;    (Math/floor (/ x (* 125 5 5 5 5)))
-  ;;    (Math/floor (/ x (* 125 5 5 5 5 5)))
-  ;;    )))
-
-(zeros10 50)
-(zeros 50)
-
-;;(time (zeros 10000))
-;;(time (zeros8 10000))
-
-;;(zeros 100000)
-;;(zeros2 50)
-;;(zeros6 50)
-;;
-(let [x 1000000]
-  [(zeros8 x) (zeros10 x)])
-
-;;(time (zeros 10000))
-;;(time (zeros6 10000))
-;;(time (zeros7 10000))
-;;(time (zeros7 1000000)) ;;249998
-;;(time (zeros8 1000000)) ;;249998
-;;(time (zeros9 1000000)) ;;249998
-;;(time (zeros10 1000000))
-
-;;(profile :info :test (zeros8 10000))
-
-#_(every?
-   #(= (zeros9 %)
-       (zeros10 %))
-   (range 0 10000))
-
-
-;; idea - every time you multiply by next number, if current product
-;; is divisible by ten, then divide by 10 and inc num of tens
-;; you can still count at end
-
-
-;; (def zeros2 [n]
-;;   (let [nums (range 1 (inc n))
-;;         tens (filter #(mod
-
+;; ==========================================================================

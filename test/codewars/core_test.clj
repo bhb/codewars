@@ -70,9 +70,9 @@
 ;; ==========================================================================
 
 (deftest Testing...
-  (is (= (zeros 0) 0) "Zero has 0 trailing zeros")
-  (is (= (zeros 6) 1))
-  (is (= (zeros 30) 7))
+  (is (= (zeros10 0) 0) "Zero has 0 trailing zeros")
+  (is (= (zeros10 6) 1))
+  (is (= (zeros10 30) 7))
 )
 
 (run-tests)
